@@ -261,12 +261,18 @@ jobs:
             sdkPattern="github.com\/networkservicemesh\/sdk "
             sdkVersion=$(grep --regexp "${sdkPattern}" go.mod)
             branchName="${sdkVersion:${#sdkPattern}}"
+          else
+            {
+              git push origin --delete update/"${branchName}"
+            } || {
+              echo Branch update/"${branchName}" is already deleted
+            }
           fi;
           git config --global user.email "nsmbot@networkservicmesh.io"
           git config --global user.name "NSMBot"
           git commit -s -F /tmp/commit-message
           git checkout -b update/"${branchName}"
-          while [ git push origin update/"${branchName}" ]; do
+          while [ $(git push origin update/"${branchName}") ]; do
             git fetch origin update/"${branchName}"
             git rebase origin/update/"${branchName}"
           done
